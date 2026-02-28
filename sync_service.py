@@ -14,9 +14,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Initialize Firebase
-cred_path = os.getenv('FIREBASE_CREDENTIALS', '/app/serviceAccountKey.json')
 if not firebase_admin._apps:
-    cred = credentials.Certificate(cred_path)
+    firebase_creds = os.getenv('FIREBASE_CREDENTIALS')
+    if firebase_creds:
+        import json
+        import base64
+        decoded = base64.b64decode(firebase_creds).decode('utf-8')
+        cred = credentials.Certificate(json.loads(decoded))
+    else:
+        cred = credentials.Certificate('/app/serviceAccountKey.json')
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
